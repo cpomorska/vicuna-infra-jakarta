@@ -78,6 +78,7 @@
             <groupId>jakarta.ejb</groupId>
             <artifactId>jakarta.ejb-api</artifactId>
             <version>4.0.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld</groupId>
@@ -95,12 +96,6 @@
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
             <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.spec.javax.transaction</groupId>
-            <artifactId>jboss-transaction-api_1.2_spec</artifactId>
-            <version>2.0.0.Alpha1</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.spec.javax.transaction</groupId>
@@ -127,7 +122,7 @@
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>
-            <version>3.1.0-M1</version>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.narayana.jta</groupId>
@@ -187,5 +182,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

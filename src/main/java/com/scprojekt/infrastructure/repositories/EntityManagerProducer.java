@@ -17,8 +17,7 @@ public class EntityManagerProducer {
         return Persistence.createEntityManagerFactory("infra").createEntityManager();
     }
 
-    public void close(
-            @Disposes EntityManager entityManager) {
+    public void close(@Disposes EntityManager entityManager) {
         entityManager.close();
     }
 
