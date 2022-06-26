@@ -1,18 +1,18 @@
-package com.scprojekt.infrastructure.repositories;
+package com.scprojekt.infrastructure.repositories.test;
 
 import com.scprojekt.domain.model.user.User;
 import com.scprojekt.domain.model.user.UserNumber;
 import com.scprojekt.domain.model.user.UserType;
-import jakarta.enterprise.inject.Produces;
+import com.scprojekt.infrastructure.repositories.InfrastructureUserRepository;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Persistence;
+import jakarta.transaction.TransactionScoped;
 import jakarta.transaction.Transactional;
-import org.jboss.weld.junit5.WeldInitiator;
-import org.jboss.weld.junit5.WeldSetup;
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.jglue.cdiunit.ProducesAlternative;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -22,37 +22,30 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
+@ActivateScopes({RequestScoped.class, TransactionScoped.class})
+@AddPackages({InfrastructureUserRepository.class, InfrastructureUserRepositoryTest.class, User.class})
 @EnableAutoWeld
-public class InfrastructureUserRepositoryTest {
-
-    @WeldSetup
-    public WeldInitiator weld = WeldInitiator.of( WeldInitiator
-            .createWeld()
-            .addBeanClass(InfrastructureUserRepository.class));
-
-    @Produces
-    @ProducesAlternative
-    public EntityManager getEm(){
-        return Persistence
-                .createEntityManagerFactory("test")
-                .createEntityManager();
-    }
-    protected EntityManager em;
+class InfrastructureUserRepositoryTest {
 
     @Inject
     private InfrastructureUserRepository infrastructureUserRepository;
 
-    @BeforeAll
+    @BeforeEach
     public void setUp() {
         User user = createTestUser();
         infrastructureUserRepository.createEntity(user);
     }
 
+    @AfterEach
+    public void cleanUp(){
+        List<User> userList = infrastructureUserRepository.findAll();
+        userList.forEach(u -> infrastructureUserRepository.removeEntity(u));
+    }
+
 
     @Test
     @Transactional
-    public void findAll() {
+    void findAll() {
         List<User> result = infrastructureUserRepository.findAll();
         assertNotNull(result);
         assertEquals("Testuser",result.get(0).getUserName());
@@ -60,7 +53,7 @@ public class InfrastructureUserRepositoryTest {
     }
 
     @Test
-    public void createUser() {
+    void createUser() {
         UUID uuid1 = UUID.fromString("35fa10da-594a-4601-a7b7-0a707a3c1ce7");
         User user1 = createTestUser();
         user1.setUserName("Insertuser");
@@ -70,7 +63,7 @@ public class InfrastructureUserRepositoryTest {
         List<User> result = infrastructureUserRepository.findAll();
         assertNotNull(result);
         assertEquals(2,result.size());
-        assertEquals(uuid1, result.get(1).getUserNumber());
+        assertEquals(uuid1, result.get(1).getUserNumber().getUuid());
         assertEquals("Insertuser",result.get(1).getUserName());
     }
 

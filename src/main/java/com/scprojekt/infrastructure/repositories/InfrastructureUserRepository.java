@@ -1,21 +1,26 @@
 package com.scprojekt.infrastructure.repositories;
 
-import com.scprojekt.domain.model.user.UserRepository;
 import com.scprojekt.domain.model.user.User;
+import com.scprojekt.domain.model.user.UserRepository;
 import com.scprojekt.domain.model.user.UserType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
 public class InfrastructureUserRepository implements UserRepository {
 
+    private final EntityManager em;
+
     @Inject
-    private EntityManager em;
+    public InfrastructureUserRepository(EntityManager em) {
+        this.em = em;
+    }
+
 
     @Override
     public List<User> findAll() {
@@ -30,13 +35,17 @@ public class InfrastructureUserRepository implements UserRepository {
 
     @Override
     public void createEntity(User entity) {
+        em.getTransaction().begin();
         em.merge(entity);
         em.flush();
+        em.getTransaction().commit();
     }
 
     @Override
     public void removeEntity(User entity) {
+        em.getTransaction().begin();
         em.remove(entity);
+        em.getTransaction().commit();
     }
 
     @Override
@@ -46,8 +55,8 @@ public class InfrastructureUserRepository implements UserRepository {
 
     @Override
     public User findByUUID(UUID uuid) {
-        Query query = em.createQuery(" SELECT u from User u WHERE u.userNumber := usernumber");
-        query.setParameter("usernumber", uuid);
+        Query query = em.createQuery(" SELECT u from User u WHERE u.userNumber.uuid = :userNumber");
+        query.setParameter("userNumber", uuid);
         return (User) query.getSingleResult();
     }
 
